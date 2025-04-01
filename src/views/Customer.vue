@@ -16,7 +16,7 @@
     </div>
 
     <!-- tabla principal -->
-    <q-table flat bordered :rows="clientes.reverse()" :columns="columns" row-key="id" >
+    <q-table separator="cell"  flat bordered :rows="clientes" :columns="columns" row-key="id" >
       <template v-slot:header="props">
         <tr>
           <th v-for="col in props.cols" :key="col.name" class="tabla-header">
@@ -24,6 +24,12 @@
           </th>
         </tr>
       </template>
+      <template v-slot:body-cell-municipality_id="props">
+          <q-td :props="props">
+            {{ getMunicipality(props.row.municipality_id) }}
+          </q-td>
+        </template>
+
       <template v-slot:body-cell-state="props">
         <q-td :props="props" class="q-pa-sm">
           <span style="color: green;" v-if="props.row.state == 1">Activo</span>
@@ -43,57 +49,85 @@
 
     <!-- Modal de Registro de Cliente -->
     <q-dialog v-model="dialog" persistent transition-show="slide-up" transition-hide="slide-down">
-      <q-card class="q-pa-md shadow-3" style="max-width: 700px; width: 100%;">
-        <!-- Encabezado -->
-        <q-card-section class="bg-primary text-white row items-center justify-between">
-          <div class="text-h6">Registrar Cliente</div>
-          <q-btn dense flat icon="close" v-close-popup />
-        </q-card-section>
+  <q-card class="modal-add q-md" style="max-width: 850px; width: 100%;">
+    <!-- ✅ Encabezado del Modal -->
+    <q-card-section class="bg-primary text-white row items-center justify-between">
+      <div class="text-h5">Registrar Cliente</div>
+      <q-space />
+      <q-btn dense flat icon="close" v-close-popup />
+    </q-card-section>
 
-        <q-card-section>
-          <q-form @submit.prevent="saveCustomer">
-            <!-- Tipo de Organización -->
-            <q-select v-model="form.legal_organization_id" :options="organizationTypes" label="Tipo de organización"
-              option-value="id" option-label="name" emit-value map-options outlined dense
-              @update:model-value="handleOrganizationChange" class="full-width" />
+    <q-card-section>
+      <q-form @submit.prevent="saveCustomer">
+        <div class="row q-col-gutter-md">
+          <!-- ✅ Columna 1: Detalles del Cliente -->
+          <div class="col-12 q-pa-md">
+            <q-card flat bordered class="q-pa-md q-mb-md w-100">
+              <h5 class="text-primary">Detalles del Cliente</h5>
+              <q-separator class="q-mb-md" />
+              <div class="row q-col-gutter-md q-pa-md q-mb-md">
+                <div class="col-12">
+                  <q-select v-model="form.legal_organization_id" :options="organizationTypes" label="Tipo de Organización"
+                    option-value="id" option-label="name" emit-value map-options outlined dense
+                    @update:model-value="handleOrganizationChange" />
+                </div>
+                
+                <div class="col-12 col-md-6" v-if="form.legal_organization_id === 1">
+                  <q-input v-model="form.company" label="Razón Social" outlined dense />
+                </div>
+                <div class="col-12 col-md-6" v-if="form.legal_organization_id === 1">
+                  <q-input v-model="form.trade_name" label="Nombre Comercial" outlined dense />
+                </div>
+                
+                <div class="col-12" v-if="form.legal_organization_id === 2">
+                  <q-input v-model="form.names" label="Nombre Completo" outlined dense />
+                </div>
+              </div>
+            </q-card>
+          </div>
+          
+          <!-- ✅ Columna 2: Información de Contacto -->
+          <div class="col-12 q-pa-md">
+            <q-card flat bordered class="q-pa-md q-mb-md w-100">
+              <h5 class="text-primary">Información de Contacto</h5>
+              <q-separator class="q-mb-md" />
+              <div class="row q-col-gutter-md q-pa-md q-mb-md">
+                <div class="col-12 col-md-6">
+                  <q-select v-model="form.identification_document_id" :options="documentTypeOptions" label="Tipo de Documento" outlined dense emit-value map-options />
+                </div>
+                <div class="col-12 col-md-6">
+                  <q-input v-model="form.identification" label="Identificación" outlined dense />
+                </div>
+                <div class="col-12 col-md-6">
+                  <q-select v-model="form.tribute_id" :options="tributeOptions" label="Tributo" outlined dense emit-value map-options />
+                </div>
+                <div class="col-12 col-md-6">
+                  <q-input v-model="form.address" label="Dirección" outlined dense />
+                </div>
+                <div class="col-12 col-md-6">
+                  <q-input v-model="form.email" label="Correo Electrónico" type="email" outlined dense />
+                </div>
+                <div class="col-12 col-md-6">
+                  <q-input v-model="form.phone" label="Teléfono" type="tel" outlined dense />
+                </div>
+                <div class="col-12">
+                  <q-select v-model="form.municipality_id" :options="municipalityOptions" option-label="name" option-value="id" label="Municipio" outlined dense emit-value map-options />
+                </div>
+              </div>
+            </q-card>
+          </div>
+        </div>
 
-            <!-- Campos en 2 columnas -->
-            <div class="row q-col-gutter-md">
-              <!-- Persona Jurídica -->
-              <q-input v-if="form.legal_organization_id === 1" v-model="form.company" label="Razón Social" class="col-6"
-                outlined dense />
-              <q-input v-if="form.legal_organization_id === 1" v-model="form.trade_name" label="Nombre Comercial"
-                class="col-6" outlined dense />
+        <!-- ✅ Botón de Guardar -->
+         <q-card-actions align="right">
+           <q-btn label="Cancelar" color="grey" v-close-popup flat @click="openDialog = false" />
+           <q-btn type="submit" label="Guardar" color="primary" unelevated @click="saveCustomer" />
+         </q-card-actions>
+      </q-form>
+    </q-card-section>
+  </q-card>
+</q-dialog>
 
-              <!-- Persona Natural -->
-              <q-input v-if="form.legal_organization_id === 2" v-model="form.names" label="Nombre Completo"
-                class="col-12" outlined dense />
-
-              <!-- Información General -->
-              <q-select v-model="form.identification_document_id" :options="documentTypeOptions"
-                label="Tipo de documento" class="col-6" outlined dense emit-value map-options />
-              <q-input v-model="form.identification" label="Identificación" class="col-6" outlined dense />
-
-              <q-select v-model="form.tribute_id" :options="tributeOptions" label="Tributo" class="col-6" outlined dense
-                emit-value map-options />
-              <q-input v-model="form.address" label="Dirección" class="col-6" outlined dense />
-
-              <q-input v-model="form.email" label="Correo Electrónico" type="email" class="col-6" outlined dense />
-              <q-input v-model="form.phone" label="Teléfono" type="tel" class="col-6" outlined dense />
-
-              <!-- Municipio -->
-              <q-select v-model="form.municipality_id" :options="municipalityOptions" label="Municipio" class="col-12"
-                outlined dense emit-value map-options />
-            </div>
-
-            <!-- Botón de Guardar -->
-            <div class="q-mt-lg row justify-end" style="margin-top: 20px;">
-              <q-btn label="Guardar Cliente" type="submit" color="primary" icon="save" @click="saveCustomer" />
-            </div>
-          </q-form>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
 
     <!-- modal de edicion-->
     <q-dialog v-model="modalEditCustomer" persistent transition-show="slide-up" transition-hide="slide-down">
@@ -211,7 +245,7 @@ const openDialog = () => {
 const form = ref({
   legal_organization_id: null,
   identification: '',
-  dv: '',
+  dv: '3',
   company: '',
   trade_name: '',
   names: '',
@@ -394,8 +428,8 @@ const fetchMunicipalityOptions = async () => {
     const response = await getData('/v1/municipalities?name=&code=');
     if (response.data && Array.isArray(response.data)) {
       municipalityOptions.value = response.data.map(item => ({
-        label: item.name,
-        value: item.id
+        name: `${item.name} - ${item.department}`,
+        id: item.id
       }));
     } else {
       console.error('❌ Estructura inesperada en la respuesta:', response.data);
@@ -405,7 +439,10 @@ const fetchMunicipalityOptions = async () => {
   }
 };
 
-
+const getMunicipality = (MunicipalityId) => {
+  const municipality = municipalityOptions.value.find(m => Number(m.id) === Number(MunicipalityId));
+  return municipality ? municipality.name : "Desconocido";
+};
 
 
 
@@ -467,7 +504,57 @@ h4 {
   padding: 10px;
 }
 
-/* Mejor organización del formulario */
+.modal-add {
+ 
+ box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+ background: #fff;
+}
+
+/* 🔹 Estiliza los títulos de cada sección */
+h5 {
+ font-size: 12px;
+ font-weight: bold;
+ margin-bottom: 8px;
+}
+
+/* 🔹 Estiliza las tarjetas internas */
+.q-card {
+ border-radius: 10px;
+ box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+ background: #f9f9f9;
+}
+
+/* 🔹 Espaciado en los inputs */
+.q-input,
+.q-select {
+ margin-bottom: 10px;
+}
+
+/* 🔹 Estiliza los botones */
+
+
+.q-btn[color="primary"] {
+ background: #1976d2;
+ color: white;
+}
+
+.q-btn[color="grey"] {
+ background: #f1f1f1;
+ color: #333;
+}
+
+
+.q-separator {
+ margin-bottom: 10px;
+}
+
+.q-list {
+ background: white;
+ border-radius: 8px;
+ padding: 5px;
+}
+
+
 .full-width {
   width: 100%;
 }

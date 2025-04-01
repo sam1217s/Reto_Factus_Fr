@@ -4,9 +4,9 @@
         <q-header elevated class="header" v-show="$route.path !== '/' && $route.path !== '/'">
           <q-toolbar>
             <q-btn flat @click="drawer = !drawer" round dense icon="menu" v-if="userName"/>
-            <q-toolbar-title>LRFactus</q-toolbar-title>
+            <q-toolbar-title><strong>LRFactus</strong></q-toolbar-title>
             
-            <q-btn-dropdown  id="dropdown" :label="userName" class="q-py-sm" style="color: white; ">
+            <q-btn-dropdown  id="dropdown" flat :label="userName" class="q-py-sm" style="color: white; ">
                 
                     <q-list  >
                      

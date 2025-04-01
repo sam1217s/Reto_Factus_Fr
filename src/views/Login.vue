@@ -104,7 +104,7 @@ const login = async () => {
   }
   try {
     const response = await postData('/oauth/token', data)
-    console.log('Respuesta recibida:', response)
+   
     if (response.access_token && response.refresh_token) {
   store.set_Token_RefreshToken(response.access_token, response.refresh_token)
   router.replace('/home');

@@ -11,7 +11,10 @@
   "dependencies": {
     "@quasar/extras": "^1.16.17",
     "axios": "^1.7.9",
+    "dayjs": "^1.11.13",
+    "jspdf": "^3.0.1",
     "material-icons": "^1.13.14",
+    "numero-a-letras": "^1.0.6",
     "pinia": "^3.0.1",
     "pinia-plugin-persistedstate": "^4.2.0",
     "quasar": "^2.17.7",

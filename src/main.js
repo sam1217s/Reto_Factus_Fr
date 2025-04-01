@@ -20,7 +20,7 @@ app.use(Quasar, {
       notify: {
         timeout: 5000,
         position: 'top',
-        classes: 'bg-blue-grey-9 text-white',
+       /*  classes: 'bg-blue-grey-9 text-white', */
         textColor: 'white',
         actions: [{ icon: 'close', color: 'white' }]
       }
