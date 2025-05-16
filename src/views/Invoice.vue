@@ -3,21 +3,19 @@
     <!-- Botón para abrir el modal -->
     <h4>Facturas</h4>
     <hr>
-    <div class="tittle">
-      <q-input v-model="search" placeholder="Buscar producto" outlined dense clearable>
-        <template v-slot:append>
-          <q-btn flat icon="search" @click="getDatafromAPI" />
-        </template>
-      </q-input>
-
-      <div class="add">
-        <q-btn label="Crear" icon="add" @click="showModal = true; resertFactura()" class="crear"
-          style="background-color: #007bff; color: white; border-radius: 6px; padding: 10px 20px; font-weight: 600;" />
-      </div>
-    </div>
-
+    <q-card-actions align="right">
+        <q-btn label="Crear" icon="add" @click="showModal = true; resertFactura()" class="crear"style="background-color: #007bff; color: white; border-radius: 6px; padding: 10px 20px; font-weight: 600;" />
+    </q-card-actions>
+      
+  
     <!-- Tabla de Facturas -->
-    <q-table separator="cell" flat bordered :rows="rows" :columns="columns" row-key="id" v-model:pagination="pagination"
+    <q-table separator="cell"
+     flat
+      bordered
+       :rows="rows" 
+       :columns="columns"
+        row-key="id"
+         v-model:pagination="pagination"
       :rows-per-page-options="[5, 10, 20, 50]">
      
       <template v-slot:header="props">
@@ -55,9 +53,9 @@
           <q-btn icon="close" flat dense @click="showModal = false" />
         </q-card-section>
 
-        <q-card-section style="padding:  20px 130px 10px">
-          <q-form @submit.prevent="submitInvoice">
-            <div class="factura-container q-pa-md">
+        <q-card-section style="padding:  20px 130px 10px" class="bg-grey-4">
+          <q-form @submit.prevent="submitInvoice" class="bg-white q-pa-md">
+            <div class="factura-container q-pa-xl">
             <h4 style=" font-size: 13px;"> Información de la Factura</h4>
             <div class="row q-col-gutter-md">
               <q-select v-model="factura.numbering_range_id" :options="rangeOptions" label="Tipo de Documento"
@@ -66,7 +64,7 @@
               <q-input v-model="factura.reference_code" label="Código de Referencia" class="col-6 input-field" outlined
                 dense />
 
-              <q-select v-model="factura.customer" :options="customers" label="Cliente"  :option-label="customer => customer?.names || ''" map-options
+              <q-select v-model="factura.customer" :options="customers" label="Cliente"  :option-label="customer => customer?.names ||customer?.company || ''" map-options
                 class="col-4 input-field" outlined dense />
               <q-input :model-value="factura.customer?.identification" label="Identificación" class="col-2 input-field"
                 outlined readonly dense />
@@ -123,22 +121,19 @@
                 </tr>
               </template>
 
-              <template v-slot:body-cell-quantity="props">
-                <q-td :props="props">
-                  <q-input v-model="props.row.quantity" type="number" min="1" dense outlined /> 
+              <template v-slot:body-cell-quantity="props" >
+                <q-td :props="props" style="width: 20px;" >
+                  <q-input v-model="props.row.quantity" type="number" min="1" dense outlined  /> 
                 </q-td>
               </template>
-              <template v-slot:body-cell-price="props">
+              <template v-slot:body-cell-price="props" >
                 <q-td :props="props">
-
-                  <q-input v-model="props.row.price" type="number" dense readonly outlined
-                    />
+                  <span>{{ formatNumber(props.row.price) }}</span>
                 </q-td>
               </template>
               <template v-slot:body-cell-tax_rate="props">
                 <q-td :props="props">
-                  <q-input v-model="props.row.tax_rate" type="string" outlined readonly dense
-                 />
+                  <span>{{ props.row.tax_rate }}%</span>
                 </q-td>
               </template>
 
@@ -150,11 +145,21 @@
             </q-table>
 
             <div class="row q-col-gutter-md q-mt-md">
-              <q-select v-model="factura.payment_method_code" :options="paymentMethods" label="Método de Pago" outlined
+              <div class="col-4">
+                <q-select v-model="factura.payment_method_code" :options="paymentMethods" label="Método de Pago" outlined
                 option-label="label" option-value="value" emit-value map-options dense class="col-6 input-field" />
 
               <q-select v-model="factura.payment_form" label="Forma de Pago" option-label="name" option-value="id"
-                emit-value map-options :options="paymentForms" class="col-6 input-field" outlined dense />
+                emit-value map-options :options="paymentForms" class="col-6 input-field" outlined dense /> 
+              </div>
+              <div class="col-4">
+                <h4 style="font-size: 13px;">Total Neto</h4>
+               
+              </div>
+              <div class="col-4 text-center items-center">
+                <h4 style="font-size: 13px;" class="text-bold total ">${{ formatNumber(totalFactura) }}</h4>
+              </div>
+             
             </div>
 
             <q-input v-model="factura.observation" label="Observaciones" type="textarea" class="q-mt-md" outlined />
@@ -299,9 +304,10 @@
                   hide-bottom
                   class="detalle-table"
                 >
+              
                 <template v-slot:body-cell-price="props">
                 <q-td :props="props">
-                  {{ new Intl.NumberFormat('es-Co', { style: 'currency', currency: 'COP' }).format(props.row.price) }}
+                  {{ formatNumber(props.row.price) }}
                 </q-td>
               </template>
               <template v-slot:header="props">
@@ -327,11 +333,11 @@
                   <div class="totales-box text-weight-bold">
                     <div class="total-row">
                       <span>Subtotal:</span>
-                      <span>{{ new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(factura.factusData?.gross_value) }}</span>
+                      <span>{{ formatNumber(factura.factusData?.gross_value) }}</span>
                     </div>
                     <div class="total-row">
                       <span>IVA:</span>
-                      <span>{{ new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(factura.factusData?.tax_amount) }}</span>
+                      <span>{{ formatNumber(factura.factusData?.tax_amount) }}</span>
                     </div>
                     <div class="total-row">
                       <span>Descuentos:</span>
@@ -339,7 +345,7 @@
                     </div>
                     <div class="total-row text-weight-bold">
                       <span class="section-title">TOTAL:</span>
-                      <span>{{ new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(factura.factusData?.total) }}</span>
+                      <span>{{ formatNumber(factura.factusData?.total) }}</span>
                     </div>
                   </div>
                 </div>
@@ -400,6 +406,10 @@ const numberLetter = (number) => {
   return numero;
 }
 
+const formatNumber = (num) => {
+  return new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
+};
+
 const columns = [
   {
     name: "createdAt",
@@ -443,6 +453,7 @@ const productColumns = [
   { name: 'quantity', label: 'Cantidad', field: 'quantity', align: 'center' },
   { name: 'price', label: 'Valor Unitario', field: 'price', align: 'center' },
   { name: 'tax_rate', label: 'Impuesto', field: 'tax_rate', align: 'center' },
+  { name: 'total', label: 'Total', field: ((row) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(row.price * row.quantity)), align: 'center' },
   { name: 'actions', label: 'Acciones', align: 'center' }
 
 ];
@@ -466,6 +477,21 @@ const rows = ref([]);
 const pagination = ref({ page: 1, rowsPerPage: 5 });
 const loading = ref(false);
 
+const totalFactura = computed(() => {
+  const productos = factura.value.products
+  if (!productos || productos.length === 0) return 0
+
+  return productos.reduce((total, item) => {
+    const precio = Number(item.price) || 0
+    const cantidad = Number(item.quantity) || 0
+    const impuesto = Number(item.tax_rate) || 0
+
+    const subtotal = precio * cantidad
+    /* const totalConImpuesto = subtotal + (subtotal * impuesto / 100) */
+
+    return total + subtotal
+  }, 0)
+})
 
 
 const now = dayjs();
@@ -664,14 +690,11 @@ async function downloadInvoice(number) {
   try {
     // 1. Obtener datos de la API
     const invoiceResponse = await getData(`/v1/bills/download-pdf/${number}`);
-    
     // 2. Validar respuesta
     if (!invoiceResponse?.data?.pdf_base_64_encoded) {
       throw new Error("La respuesta no contiene datos válidos del PDF");
     }
-    
     const { file_name = `factura_${number}`, pdf_base_64_encoded } = invoiceResponse.data;
-    
     // 3. Decodificar base64 (manejo más eficiente)
     const byteCharacters = atob(pdf_base_64_encoded);
     const byteNumbers = new Array(byteCharacters.length);
@@ -820,6 +843,7 @@ h4 {
   justify-content: flex-end;
   gap: 10px;
   font-size: 11px;
+  padding: 20px;
 }
 
 .factura-container {
@@ -827,6 +851,7 @@ h4 {
   margin: 0 auto;
   font-family: 'Roboto', Arial, sans-serif;
   border: 3px solid ghostwhite;
+  
 }
 
 .header-section {
@@ -883,6 +908,7 @@ h4 {
   margin-right: 5px;
   color: #555;
 }
+
 
 .info-value {
   color: #333;

@@ -7,19 +7,28 @@
             <q-toolbar-title><strong>LRFactus</strong></q-toolbar-title>
             
             <q-btn-dropdown  id="dropdown" flat :label="userName" class="q-py-sm" style="color: white; ">
-                
-                    <q-list  >
+              <q-img class="absolute-top" 
+                style="height: 160px; text-align: center;">
+                <div class="absolute-bottom bg-transparent" style="color: #37465a ;">
+                    <q-avatar size="56px" class="q-mb-sm">
+                        <img src="/logo.png" alt="logo">
+                    </q-avatar>
+                    <div class="text-weight-bold">SanboxFactus</div>
+                    <div style="font-size: 10px;">{{ userName }}</div>
+                    <hr style="border-top: 1px solid #ddd; margin-top: 10px; margin-bottom: 10px;">
+                </div>
+            </q-img>
+                    <q-list style="height: calc(100% - 150px); margin-top: 150px; border-right: 1px solid #ddd; font-size:11px; "  >
                      
-                        <q-item clickable v-close-popup @click="goToSettings">
-                            <q-item-section avatar>
-                                <q-icon name="settings" />
+                        <q-item clickable v-close-popup @click="goToSettings" >
+                            <q-item-section avatar style="min-width: 40px">
+                                <q-icon name="settings" style=" font-size: 17px;" />
                             </q-item-section>
                             <q-item-section>Configuración</q-item-section>
                         </q-item>
-
                         <q-item clickable v-close-popup @click="logout" to="/">
-                            <q-item-section avatar>
-                                <q-icon name="logout" style="color: gray;"  />
+                            <q-item-section avatar style="min-width: 40px">
+                                <q-icon name="logout" style=" font-size: 17px;"  />
                             </q-item-section>
                             <q-item-section>Cerrar sesión</q-item-section>
                         </q-item>
@@ -30,6 +39,7 @@
         
   
         <q-drawer 
+        
         v-show="$route.path !== '/' && $route.path !== '/'"
           v-model="drawer"
           show-if-above
@@ -37,14 +47,23 @@
           @mouseenter="miniState = false"
           @mouseleave="miniState = true"
           mini-to-overlay
-          :width="200"
+          :width="200" 
           :breakpoint="500"
           bordered
           :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'"
         >
-          <q-scroll-area class="fit" :horizontal-thumb-style="{ opacity: 0 }">
-            <q-list padding>
-              <q-item clickable v-ripple to="/home">
+        <q-img class="absolute-top"  style="height: 100px; text-align: center;">
+         
+                <div class="absolute-bottom bg-transparent" style="color: #37465a ;">
+                    <q-avatar  size="30px" class="q-mb-sm">
+                        <img  src="/logo.png" alt="logo">
+                    </q-avatar>
+                    <hr style="border-top: 1px solid #ddd; margin-top: 10px; margin-bottom: 10px;">
+                </div>
+            </q-img>
+          <q-scroll-area class="fit"   :horizontal-thumb-style="{ opacity: 0 }">
+            <q-list padding style="height: calc(100% - 150px); margin-top: 70px; border-right: 1px solid #ddd; font-size:11px; " >
+              <q-item clickable v-ripple to="/home" active-class="my-menu-link" exact>
                 <q-item-section avatar>
                   <q-icon name="home" />
                 </q-item-section>
@@ -53,7 +72,7 @@
                   Inicio
                 </q-item-section>
               </q-item>
-              <q-item clickable v-ripple to="/invoice">
+              <q-item clickable v-ripple to="/invoice" active-class="my-menu-link">
                 <q-item-section avatar>
                   <q-icon name="receipt"  />
                 </q-item-section>
@@ -63,9 +82,9 @@
                 </q-item-section>
               </q-item>
   
-              <q-item active clickable v-ripple to="/customer">
+              <q-item clickable v-ripple to="/customer" active-class="my-menu-link">
                 <q-item-section avatar>
-                  <q-icon name="person" />
+                  <q-icon name="groups" />
                 </q-item-section>
   
                 <q-item-section>
@@ -73,9 +92,9 @@
                 </q-item-section>
               </q-item>
   
-              <q-item clickable v-ripple to="/product">
+              <q-item clickable v-ripple to="/product" active-class="my-menu-link">
                 <q-item-section avatar>
-                  <q-icon name="send" />
+                  <q-icon name="category" />
                 </q-item-section>
   
                 <q-item-section>
@@ -117,12 +136,18 @@ import { QPageContainer } from 'quasar';
   #dropdown{
     font-size: 10px;
     font-weight: 700;
-    
    
   }
 
   .q-drawer{
-    color: #37465a;;
+    color: #37465a;
+    font-weight: 700;
+   
+
+  }
+
+  .my-menu-link{
+    color: #0d6efd;
   }
 
   

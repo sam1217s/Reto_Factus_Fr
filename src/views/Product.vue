@@ -2,18 +2,14 @@
   <q-page class="q-pa-md">
     <h4>Productos y Servicios</h4>
     <hr>
-    <div class="tittle">
-      <q-input v-model="search" placeholder="Buscar producto" outlined dense clearable>
-        <template v-slot:append>
-          <q-btn flat icon="search" @click="getDatafromAPI" />
-        </template>
-      </q-input>
-
-      <div class="add">
-        <q-btn label="Crear" icon="add" @click="openDialog" class="crear"
+    <q-card-actions align="right">
+       <q-btn label="Crear" icon="add" @click="openDialog" class="crear"
           style="background-color: #007bff; color: white; border-radius: 6px; padding: 10px 20px; font-weight: 600;" />
-      </div>
-    </div>
+     
+    </q-card-actions>
+
+      
+       
 
     <!-- tabla principal -->
     <q-table
@@ -71,7 +67,7 @@
   <q-card class="modal-add q-md" style="max-width: 850px; width: 100%;">
     <!-- ✅ Encabezado del Modal -->
     <q-card-section class="bg-primary text-white row items-center justify-between">
-      <div class="text-h2 text-weight-bold">Registrar Producto o Servicio</div>
+      <h5 class="text-h2 text-weight-bold">Registrar Producto o Servicio</h5>
       <q-space />
       <q-btn dense flat icon="close" v-close-popup />
     </q-card-section>
@@ -491,6 +487,7 @@ const fetchTributeOptions = async () => {
         name: `${item.code} - ${item.name}`,
         id: item.id
       }));
+      console.log(tributeOptions.value);
     } else {
       console.error('❌ Estructura inesperada en la respuesta:', response.data);
     }
@@ -562,9 +559,9 @@ h4 {
 
 /* 🔹 Estiliza los títulos de cada sección */
 h5 {
-  font-size: 12px;
+  font-size: 15px;
   font-weight: bold;
-  margin-bottom: 8px;
+ 
 }
 
 /* 🔹 Estiliza las tarjetas internas */

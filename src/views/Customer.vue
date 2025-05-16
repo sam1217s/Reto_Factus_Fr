@@ -3,11 +3,27 @@
     <h4>Clientes</h4>
     <hr>
     <div class="tittle">
-      <q-input v-model="search" placeholder="Buscar producto" outlined dense clearable>
-        <template v-slot:append>
-          <q-btn flat icon="search" @click="getDatafromAPI" />
-        </template>
-      </q-input>
+      <q-select
+  v-model="selectedCustomer"
+  :options="filteredCustomers"
+  use-input
+  input-debounce="300"
+  @filter="filterCustomer"
+  option-label="name"
+  option-value="id"
+  label="Buscar cliente"
+  outlined
+  dense
+  clearable
+  emit-value
+  map-options
+  
+  
+>
+  <template v-slot:append>
+    <q-icon name="search" />
+  </template>
+</q-select>
 
       <div class="add">
         <q-btn label="Crear" icon="person_add" @click="openDialog" class="crear"
@@ -48,11 +64,11 @@
 
 
     <!-- Modal de Registro de Cliente -->
-    <q-dialog v-model="dialog" persistent transition-show="slide-up" transition-hide="slide-down">
-  <q-card class="modal-add q-md" style="max-width: 850px; width: 100%;">
+    <q-dialog v-model="dialog" persistent transition-show="slide-up" transition-hide="slide-down" class="modall">
+  <q-card class="modal q-md" style="max-width: 550px; width: 100%;">
     <!-- ✅ Encabezado del Modal -->
     <q-card-section class="bg-primary text-white row items-center justify-between">
-      <div class="text-h5">Registrar Cliente</div>
+      <h5 class=" text-weight-bold">Registrar Cliente</h5>
       <q-space />
       <q-btn dense flat icon="close" v-close-popup />
     </q-card-section>
@@ -62,7 +78,7 @@
         <div class="row q-col-gutter-md">
           <!-- ✅ Columna 1: Detalles del Cliente -->
           <div class="col-12 q-pa-md">
-            <q-card flat bordered class="q-pa-md q-mb-md w-100">
+            <q-card flat  class="q-pa-md q-mb-md w-100">
               <h5 class="text-primary">Detalles del Cliente</h5>
               <q-separator class="q-mb-md" />
               <div class="row q-col-gutter-md q-pa-md q-mb-md">
@@ -88,7 +104,7 @@
           
           <!-- ✅ Columna 2: Información de Contacto -->
           <div class="col-12 q-pa-md">
-            <q-card flat bordered class="q-pa-md q-mb-md w-100">
+            <q-card flat class="q-pa-md q-mb-md w-100">
               <h5 class="text-primary">Información de Contacto</h5>
               <q-separator class="q-mb-md" />
               <div class="row q-col-gutter-md q-pa-md q-mb-md">
@@ -111,7 +127,7 @@
                   <q-input v-model="form.phone" label="Teléfono" type="tel" outlined dense />
                 </div>
                 <div class="col-12">
-                  <q-select v-model="form.municipality_id" :options="municipalityOptions" option-label="name" option-value="id" label="Municipio" outlined dense emit-value map-options />
+                  <q-select v-model="form.municipality_id" :options="productosFiltrados" option-label="name" option-value="id" label="Municipio" outlined dense emit-value map-options use-input input-debounce="0" clearable @filter="filterMunicipalities" />
                 </div>
               </div>
             </q-card>
@@ -170,8 +186,8 @@
               <q-input v-model="dataEditCustomer.phone" label="Teléfono" type="tel" class="col-6" outlined dense />
 
               <!-- Municipio -->
-              <q-select v-model="dataEditCustomer.municipality_id" :options="municipalityOptions" label="Municipio"
-                class="col-12" outlined dense emit-value map-options />
+              <q-select v-model="dataEditCustomer.municipality_id" :options="municipalityOptions" label="Municipio" option-label="name" option-value="id" class="col-12" outlined dense emit-value map-options  />
+                
             </div>
 
             <!-- Botón de Guardar -->
@@ -190,7 +206,7 @@
 
 <script setup>
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { getData, } from '../services/apiClient';
 import { backgetData, backpostData, backputData } from '../services/backClient';
 import { Notify } from 'quasar';
@@ -215,15 +231,29 @@ const columns = [
 
 const clientes = ref([]);
 const dialog = ref(false);
-const search = ref('');
+
 const municipalityOptions = ref([]);
 const loading = ref(false);
+const selectedCustomer = ref(null);
+const allCustomers = ref([]);
+const filteredCustomers = ref([]);
 
 async function getDatafromAPI() {
   loading.value = true;
   try {
     const response = await backgetData('customer');
-    clientes.value = response;
+    if (response && Array.isArray(response)) {
+      const customerList = response;
+
+      allCustomers.value = customerList;
+      clientes.value = customerList;
+
+      filteredCustomers.value = customerList.map(c => ({
+        id: c._id,
+        name: c.company || c.names  // mostrar nombre comercial o nombre personal
+      }));
+      console.log(filteredCustomers.value);
+    }
     console.log(response);
   } catch (error) {
 
@@ -233,6 +263,38 @@ async function getDatafromAPI() {
     loading.value = false;
   }
 }
+
+// Función para filtrar clientes en el select
+const filterCustomer = (val, update, abort) => {
+  if (val === '') {
+    update(() => {
+      filteredCustomers.value = allCustomers.value.map(c => ({
+        id: c._id,
+        name: c.company || c.names
+      }));
+    });
+    return;
+  }
+
+  const needle = val.toLowerCase();
+  update(() => {
+    filteredCustomers.value = allCustomers.value
+      .filter(c => (c.company || c.names).toLowerCase().includes(needle))
+      .map(c => ({
+        id: c._id,
+        name: c.company || c.names
+      }));
+  });
+};
+
+// Watcher para actualizar la tabla cuando se seleccione un cliente
+watch(selectedCustomer, (val) => {
+  if (val) {
+    clientes.value = allCustomers.value.filter(c => c._id === val);
+  } else {
+    clientes.value = allCustomers.value;
+  }
+});
 
 // crear Cliente
 
@@ -422,23 +484,39 @@ const showConfirmationState = (customer) => {
 
 //endpoints
 
-const fetchMunicipalityOptions = async () => {
+// A. Cargar todos al iniciar
+const fetchAllMunicipalities = async () => {
   try {
-
-    const response = await getData('/v1/municipalities?name=&code=');
+    const response = await getData('/v1/municipalities');
     if (response.data && Array.isArray(response.data)) {
       municipalityOptions.value = response.data.map(item => ({
         name: `${item.name} - ${item.department}`,
         id: item.id
       }));
     } else {
+      municipalityOptions.value = [];
       console.error('❌ Estructura inesperada en la respuesta:', response.data);
     }
   } catch (error) {
-    console.error('❌ Error al obtener los datos:', error);
+    console.error('❌ Error al obtener todos los municipios:', error);
+    municipalityOptions.value = [];
   }
 };
 
+const productosFiltrados = ref([]);
+
+// Función para usar con `use-input` en <q-select>
+const filterMunicipalities = (val, update) => {
+  const needle = val?.toLowerCase() || "";
+
+  update(() => {
+    productosFiltrados.value = needle === ""
+      ? municipalityOptions.value
+      : municipalityOptions.value.filter((item) =>
+          item.name.toLowerCase().includes(needle)
+        );
+  });
+};
 const getMunicipality = (MunicipalityId) => {
   const municipality = municipalityOptions.value.find(m => Number(m.id) === Number(MunicipalityId));
   return municipality ? municipality.name : "Desconocido";
@@ -448,7 +526,7 @@ const getMunicipality = (MunicipalityId) => {
 
 onMounted(async () => {
   getDatafromAPI();
-  fetchMunicipalityOptions();
+  fetchAllMunicipalities();
 });
 </script>
 
@@ -504,15 +582,14 @@ h4 {
   padding: 10px;
 }
 
-.modal-add {
- 
- box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
- background: #fff;
-}
+
+
+
+
 
 /* 🔹 Estiliza los títulos de cada sección */
 h5 {
- font-size: 12px;
+ font-size: 15px;
  font-weight: bold;
  margin-bottom: 8px;
 }
