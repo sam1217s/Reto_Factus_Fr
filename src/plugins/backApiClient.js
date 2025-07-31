@@ -1,17 +1,15 @@
 import axios from "axios";
 
 const backApiClient = axios.create({
-   /*  baseURL: "http://localhost:3999/api"  */  
-     baseURL: "https://reto-factus-back.onrender.com/api"   
-
+    baseURL: import.meta.env.VITE_API_URL || "/api"
 });
 
 backApiClient.interceptors.request.use(
     (config) => {
         const dataStore = JSON.parse(localStorage.getItem("Auth"));
         const token = dataStore?.token || "";
-            config.headers.Authorization = `Bearer ${token}`
-            config.headers["Content-Type"]= "application/json"
+        config.headers.Authorization = `Bearer ${token}`;
+        config.headers["Content-Type"] = "application/json";
         return config;
     },
     (error) => {

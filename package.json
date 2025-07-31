@@ -11,7 +11,11 @@
   "dependencies": {
     "@quasar/extras": "^1.16.17",
     "axios": "^1.7.9",
+    "chart.js": "^4.5.0",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "express-rate-limit": "^8.0.1",
+    "express-validator": "^7.2.1",
     "jspdf": "^3.0.1",
     "material-icons": "^1.13.14",
     "numero-a-letras": "^1.0.6",

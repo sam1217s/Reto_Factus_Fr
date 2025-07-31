@@ -1,4 +1,4 @@
-import backApiClient from '../plugins/axiosback'
+import backApiClient from '../plugins/backApiClient'
 
 export async function backgetData(url){
     try {

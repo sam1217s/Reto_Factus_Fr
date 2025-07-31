@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import './style.css'
+import './styles.css'
 import App from './App.vue'
 import { Quasar } from 'quasar'
 import 'quasar/src/css/index.sass'
