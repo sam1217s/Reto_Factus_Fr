@@ -213,8 +213,8 @@ const login = async () => {
     username: email.value,
     password: password.value,
     grant_type: 'password',
-    client_id: '9e2e167b-d588-44ee-b5e0-f1244880aed6',
-    client_secret: 'wlLUQU1FzTQvUp7KUndhj3I8L1ydlNxVjFtMuNRQ'
+    client_id: '9f1df81b-6f56-4f39-87e2-e7c515c968f1',
+    client_secret: 'sDc5eyQ4by051rbg5OPBKgHfd2DFcXZpgchMUZP0'
   }
   
   try {
